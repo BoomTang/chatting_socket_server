@@ -112,10 +112,72 @@ function closeSocket() {
 		$('#p.online_count').hide();
 		
 	});
-	
 }
 
-
+/**
+ * Parsing the json message. This type of message is identified by 'flag'
+ * available flag can be self, new, message, exit
+ */
+function parseMessage(message) {
+	var jObj = $.parseJSON(message);
+	
+	//if flag is 'self', message must contain the session id
+	if(jObj.flag == 'self'){
+		sessionId = jObj.sessionId;
+	} else if (jObj.flag == 'new') {
+		//if flag is 'new', a client joined the chatting room
+		var new_name = 'You';
+		
+		//number of people online
+		var online_count = jObj.onlineCount;
+		
+		$('p.online_count').html(
+				'Hello, <span class="green">' + name + '</span>. <b>'
+				+ online_count + '</b> people online right now')
+				.fadeIn();
+		
+		if (jObj.sessionId != sessionId) {
+			new_name = jObj.name;
+		}
+		
+		var li = '<li class="new"><span class="name">' + new_name + '</span>'
+				+ jObj.message + '</li>';
+		
+		$('#messages').append(li);
+		$('#input_message').value('');
+		
+	} else if (jObj.flag == 'message') {
+		//if flag is 'message', a user has sent a chatting message
+		
+		var from_name = 'You';
+		
+		if(jObj.sessionId != sessionId){
+			from_name = jObj.name;
+		}
+		
+		var li = '<li><span class="name">' + from_name + '</span>'
+				+ jObj.message + '</li>';
+		
+		//appending the sent message to list
+		appendChatMessage(li);
+		
+		$('#input_message').val('');
+		
+	} else if (jObj.flag == 'exit') {
+		//if flag is 'exit', it means a user has left the chatting room
+		var li = '<li class="exit"><span class="name red">' + jObj.name
+				+ '</span>' + jObj.message + '</li>';
+		
+		var online_count = jObj.onlineCount;
+		
+		$('p.online_count').html(
+				'Hello, <span class="green">' + name + '</span>. <b>'
+				+ online_count + '</b>people online right now');
+		
+		appendChatMessage(li);
+		
+	}
+}
 
 
 
