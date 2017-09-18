@@ -175,9 +175,38 @@ function parseMessage(message) {
 				+ online_count + '</b>people online right now');
 		
 		appendChatMessage(li);
-		
 	}
 }
 
+/**
+ * @param li
+ * Append the new message to message list
+ */
+function appendChatMessage(li){
+	$('#messages').append(li);
+	
+	//scrolling the message list to bottom, so the new message will be visible
+	$('#messages').scrollTop($('#messages').height());
+}
 
+/**
+ * Send message to socket server
+ * message will be formatted to json
+ */
+function sendMessageToServer() {
+	var json = '{""}';
+	
+	//parse json object
+	var userObject = new Object();
+	userObject.sessionId = sessionId;
+	userObject.message = message;
+	userObject.flag = flag;
+	
+	//convert json object to json string
+	json = JSON.stringify(userObject);
+	
+	//send message to server
+	webSocket.send(json);
+	
+}
 
